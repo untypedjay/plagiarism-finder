@@ -1,53 +1,44 @@
-// https://en.cppreference.com/w/cpp/container/map
 #include <set>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <iterator>
 #include <vector>
-#include <map>
 
-//using index_map_t = std::map <std::string, std::set <int>>;
 using index_set_t = std::set<std::string>;
-//using index_map_pair_t = index_map_t::value_type;
+using index_vector_t = std::vector<std::string>;
 
 const size_t MAX_SHORT_WORD_LENGTH = 3;
 const size_t NUMBER_OF_INPUT_FILES = 2;
-
-const std::vector<std::string> english_stopwords = {"about", "above", "after", "again", "against", "arent", "because", "been",
-                                              "before", "being", "below", "between", "both", "cant", "cannot", "could",
-                                              "couldnt", "didnt", "does", "doesnt", "doing", "dont", "down", "during",
-                                              "each", "from", "further", "hadnt", "hasnt", "have", "havent", "having",
-                                              "hed", "hell", "hes", "here", "heres", "hers", "herself", "himself",
-                                              "hows", "into", "isnt", "itself", "lets", "more", "most", "mustnt",
-                                              "myself", "once", "only", "other", "ought", "ours", "ourselves", "over",
-                                              "same", "shant", "shed", "shell", "shes", "should", "shouldnt", "some",
-                                              "such,", "than", "that", "thats", "their", "theirs", "them", "themselves",
-                                              "then", "there", "theres", "these", "they", "theyd", "theyll", "theyre",
-                                              "theyve", "this", "those", "through", "under", "until", "very", "wasnt",
-                                              "well", "were", "weve", "werent", "what", "whats", "when", "whens",
-                                              "where", "wheres", "which", "while", "whos", "whom", "whys", "with",
-                                              "wont", "would", "wouldnt", "youd", "youll", "youre", "youve", "your",
-                                              "yours", "yourself", "yourselves"};
-
+const std::vector<std::string> english_stopwords = {"about", "above", "after", "again", "against", "arent", "because",
+                                                    "been", "before", "being", "below", "between", "both", "cant",
+                                                    "cannot", "could", "couldnt", "didnt", "does", "doesnt", "doing",
+                                                    "dont", "down", "during", "each", "from", "further", "hadnt",
+                                                    "hasnt", "have", "havent", "having", "hed", "hell", "hes", "here",
+                                                    "heres", "hers", "herself", "himself", "hows", "into", "isnt",
+                                                    "itself", "lets", "more", "most", "mustnt", "myself", "once",
+                                                    "only", "other", "ought", "ours", "ourselves", "over", "same",
+                                                    "shant", "shed", "shell", "shes", "should", "shouldnt", "some",
+                                                    "such,", "than", "that", "thats", "their", "theirs", "them",
+                                                    "themselves", "then", "there", "theres", "these", "they", "theyd",
+                                                    "theyll", "theyre", "theyve", "this", "those", "through", "under",
+                                                    "until", "very", "wasnt", "well", "were", "weve", "werent", "what",
+                                                    "whats", "when", "whens", "where", "wheres", "which", "while",
+                                                    "whos", "whom", "whys", "with", "wont", "would", "wouldnt", "youd",
+                                                    "youll", "youre", "youve", "your", "yours", "yourself",
+                                                    "yourselves"};
 const std::vector<std::string> german_stopwords = {"aber", "auch", "bist", "dadurch", "daher", "darum", "dass", "dein",
-                                             "deine", "dessen", "deshalb", "dies", "dieser", "dieses", "doch", "dort",
-                                             "durch", "eine", "einem", "einen", "einer", "eines", "euer", "eure",
-                                             "hatte", "hatten", "hattest", "hattet", "hier", "hinter", "ihre", "jede",
-                                             "jedem", "jeden", "jeder", "jedes", "jener", "jenes", "jetzt", "kann",
-                                             "kannst", "können", "könnt", "machen", "mein", "meine", "mußt", "musst",
-                                             "müssen", "müßt", "nach", "nachdem", "nein", "nicht", "oder", "seid",
-                                             "sein", "seine", "sich", "sind", "soll", "sollen", "sollst", "sollt",
-                                             "sonst", "soweit", "sowie", "unser", "unsere", "unter", "wann", "warum",
-                                             "weiter", "weitere", "wenn", "werde", "werden", "werdet", "weshalb",
-                                             "wieder", "wieso", "wird", "wirst", "woher", "wohin", "über"};
-
-// reads chars from an input stream and stores them in a string
-std::string get_line(std::istream &in) {
-    std::string str;
-    std::getline(in, str);
-    return str;
-}
+                                                   "deine", "dessen", "deshalb", "dies", "dieser", "dieses", "doch",
+                                                   "dort", "durch", "eine", "einem", "einen", "einer", "eines", "euer",
+                                                   "eure", "hatte", "hatten", "hattest", "hattet", "hier", "hinter",
+                                                   "ihre", "jede", "jedem", "jeden", "jeder", "jedes", "jener", "jenes",
+                                                   "jetzt", "kann", "kannst", "können", "könnt", "machen", "mein",
+                                                   "meine", "mußt", "musst", "müssen", "müßt", "nach", "nachdem",
+                                                   "nein", "nicht", "oder", "seid", "sein", "seine", "sich", "sind",
+                                                   "soll", "sollen", "sollst", "sollt", "sonst", "soweit", "sowie",
+                                                   "unser", "unsere", "unter", "wann", "warum", "weiter", "weitere",
+                                                   "wenn", "werde", "werden", "werdet", "weshalb", "wieder", "wieso",
+                                                   "wird", "wirst", "woher", "wohin", "über"};
 
 // erase numbers and punctuations from a string
 std::string purify(std::string str) {
@@ -128,39 +119,35 @@ struct line_string : std::string {
     }
 };
 
-void add_to_index(std::ifstream &file, index_set_t &index) {
+void add_to_index_set(std::ifstream &file, index_set_t &index) {
     // loop through all lines
-    for (auto const &line : make_range <std::string> (file)) { // everything that has a begin and an end can be on the the right side of the colon
+    for (auto const &line : make_range <std::string> (file)) {
         std::istringstream line_in {line};
 
         // loop through all words of a line
         for (std::string const &word : make_range <std::string> (line_in)) {
             // insert word into index
-            if (auto w {normalize(word)}; !std::empty(w)) { // variable only scoped in if statement
+            if (auto w {normalize(word)}; !std::empty(w)) {
                 index.insert(w);
             }
         }
     }
 }
 
-void print_index(index_set_t index) {
-    // loop through each entry in the index
-//    for (auto const &word : index) {
-//        std::cout << word << "\n";
-//    }
-    std::cout << "======================\n";
-    std::cout << "Total: " << index.size() << " words.\n";
+void add_to_index_vector(std::ifstream &file, index_vector_t &index) {
+    for (auto const &line : make_range <std::string> (file)) {
+        std::istringstream line_in {line};
+        for (std::string const &word : make_range <std::string> (line_in)) {
+            if (auto w {normalize(word)}; !std::empty(w)) { // variable only scoped in if statement
+                index.push_back(w);
+            }
+        }
+    }
 }
 
-void print_result(double first, double second, double intersection) {
-    double degree_of_conformity = 0;
-    if (first && second && intersection) {
-        std::cout << "intersection: " << intersection << ", first: " << first << "\n";
-        std::cout << "intersection / first: " << intersection / first << "\n";
-        degree_of_conformity = (double)((((intersection / first) + (intersection / second))) / NUMBER_OF_INPUT_FILES) * 100;
-    }
-    std::cout << "Number of significant words matching: " << intersection << "\n";
-    std::cout << "Degree of conformity:\n";
+void print_result(int matching_words, double degree_of_conformity) {
+    std::cout << "Number of significant words matching: " << matching_words << "\n";
+    std::cout << "Degree of conformity: ";
     std::cout << "[";
     for (size_t i = 0; i < (size_t)degree_of_conformity; ++i) {
         std::cout << "#";
@@ -171,20 +158,66 @@ void print_result(double first, double second, double intersection) {
     std::cout << "] " << degree_of_conformity << "%\n";
 }
 
+size_t calculate_matches(const index_vector_t &first, index_vector_t second) {
+    size_t matches {0};
+    for (size_t i = 0; i < first.size(); ++i) {
+        for (size_t j = 0; j < second.size(); ++j) {
+            if (first[i] == second[j]) {
+                second.erase(second.begin() + j);
+                ++matches;
+                j = second.size();
+            }
+        }
+    }
+    return matches;
+}
+
+double calculate_conformity_set(double first, double second, double intersection) {
+    if (first && second && intersection) {
+        return (double)((((intersection / first) + (intersection / second))) / NUMBER_OF_INPUT_FILES) * 100;
+    } else {
+        return 0;
+    }
+}
+
+double calculate_conformity_vector(double first, double second, double matches) {
+    if (first && second && matches) {
+        return (double)((((matches / first) + (matches / second))) / NUMBER_OF_INPUT_FILES) * 100;
+    } else {
+        return 0;
+    }
+}
+
 void run_without_word_weightening(std::ifstream &first, std::ifstream &second) {
     index_set_t index1 {};
     index_set_t index2 {};
     index_set_t result_index {};
 
-    add_to_index(first, index1);
-    add_to_index(second, index2);
+    add_to_index_set(first, index1);
+    add_to_index_set(second, index2);
 
     std::set_intersection(index1.begin(), index1.end(), index2.begin(), index2.end(), std::inserter(result_index, result_index.end()));
-    print_result(index1.size(), index2.size(), result_index.size());
+
+    print_result(result_index.size(), calculate_conformity_set(index1.size(), index2.size(), result_index.size()));
+}
+
+void run_with_word_weightening(std::ifstream &first, std::ifstream &second) {
+    index_vector_t index1 {};
+    index_vector_t index2 {};
+
+    add_to_index_vector(first, index1);
+    add_to_index_vector(second, index2);
+    size_t matches = calculate_matches(index1, index2);
+    print_result(matches, calculate_conformity_vector(index1.size(), index2.size(), matches));
 }
 
 int main(int argc, char *argv[]) {
     std::ifstream first_file = (std::ifstream)argv[1];
     std::ifstream second_file = (std::ifstream) argv[2];
+    std::cout << "------------------------ A ---------------------\n";
     run_without_word_weightening(first_file, second_file);
+    std::cout << "------------------------ B ---------------------\n";
+    first_file = (std::ifstream) argv[1];
+    second_file = (std::ifstream) argv[2];
+    run_with_word_weightening(first_file, second_file);
 }
