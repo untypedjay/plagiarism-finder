@@ -86,7 +86,7 @@ std::string normalize(std::string str) {
 
 template <typename T> class range {
 public:
-    using itor_t = T; // template parameter is not a real type name
+    using itor_t = T;
 
     explicit range(itor_t b, itor_t e) : m_begin {b}, m_end {e} {
 
@@ -105,12 +105,12 @@ private:
     itor_t m_end   {};
 };
 
-template <typename T> range <T> make_range(T b, T e) { // it's because we don't want to specify the T
+template <typename T> range <T> make_range(T b, T e) {
     return range <T> {b, e};
 }
 
-template <typename T> auto make_range(std::istream &in) { // we also want a range from a stream
-    return make_range(std::istream_iterator <T> {in}, {}); // this T are the objects the stream is iterating over (here: words)
+template <typename T> auto make_range(std::istream &in) {
+    return make_range(std::istream_iterator <T> {in}, {});
 }
 
 struct line_string : std::string {
@@ -123,7 +123,6 @@ void add_to_index_set(std::ifstream &file, index_set_t &index) {
     // loop through all lines
     for (auto const &line : make_range <std::string> (file)) {
         std::istringstream line_in {line};
-
         // loop through all words of a line
         for (std::string const &word : make_range <std::string> (line_in)) {
             // insert word into index
@@ -214,9 +213,9 @@ void run_with_word_weightening(std::ifstream &first, std::ifstream &second) {
 int main(int argc, char *argv[]) {
     std::ifstream first_file = (std::ifstream)argv[1];
     std::ifstream second_file = (std::ifstream) argv[2];
-    std::cout << "------------------------ A ---------------------\n";
+    std::cout << "=================================================== without word weightening ===============================================\n";
     run_without_word_weightening(first_file, second_file);
-    std::cout << "------------------------ B ---------------------\n";
+    std::cout << "==================================================== with word weightening =================================================\n";
     first_file = (std::ifstream) argv[1];
     second_file = (std::ifstream) argv[2];
     run_with_word_weightening(first_file, second_file);
